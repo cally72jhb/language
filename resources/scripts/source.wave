@@ -1,0 +1,8 @@
+func sum(u16 x, u16 y) : u16 {
+    return x + y;
+}
+
+entrypoint() {
+    u16 y = 2 * 3;
+    exit sum(4, y);
+}
