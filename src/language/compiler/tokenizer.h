@@ -6,7 +6,7 @@
 #include "common/constants.h"
 #include "common/error_codes.h"
 
-#include "language/compiler/wave_compiler_common.h"
+#include "language/compiler/data/wave_compiler_common.h"
 
 #include "language/runtime/wave_vm.h"
 

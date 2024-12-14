@@ -2,8 +2,8 @@
 
 #include "common/debug.h"
 
-#include "language/compiler/wave_compiler.h"
-#include "language/compiler/wave_disassembler.h"
+#include "language/compiler/compiler.h"
+#include "language/compiler/disassembler.h"
 
 #include "language/runtime/wave_vm.h"
 #include "language/runtime/wave_vm_container.h"

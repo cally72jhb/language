@@ -12,9 +12,9 @@
 
 #define REGISTER_FUNCTION_LENGTH(vm, function, function_name, function_name_length, function_return_type, error, ...)   \
     do {                                                                                                                \
-        wave_parameter function_parameters[] = { __VA_ARGS__ };                                                          \
-        wave_vm_register_function(vm, (wave_native_function) {                                                            \
-            .function_data = (wave_function) {                                                                           \
+        wave_parameter function_parameters[] = { __VA_ARGS__ };                                                         \
+        wave_vm_register_function(vm, (wave_native_function) {                                                          \
+            .function_data = (wave_function) {                                                                          \
                 .name = hash_bytes((byte*) function_name, function_name_length),                                        \
                 .return_type = function_return_type,                                                                    \
                                                                                                                         \

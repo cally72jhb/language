@@ -3,8 +3,8 @@
 
 // Includes
 
-#include "language/compiler/wave_compiler_common.h"
-#include "language/compiler/wave_type.h"
+#include "wave_compiler_common.h"
+#include "wave_type.h"
 
 // Typedefs
 

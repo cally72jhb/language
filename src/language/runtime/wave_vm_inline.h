@@ -125,10 +125,10 @@ error_code WAVE_VM_EXECUTE_FUNCTION_NAME(wave_vm* vm) {
             if (vm->error_branch_offset != 0) {                         \
                 ERROR_STACK_PUSH(error);                                \
                 bytecode = bytecode_start + vm->error_branch_offset;    \
-                goto wave_vm_execute_next_instruction;                   \
+                goto wave_vm_execute_next_instruction;                  \
             } else {                                                    \
                 temp_error_code = error;                                \
-                goto wave_vm_execute_throw_error;                        \
+                goto wave_vm_execute_throw_error;                       \
             }                                                           \
         } while (0)
 
@@ -1993,17 +1993,19 @@ error_code WAVE_VM_EXECUTE_FUNCTION_NAME(wave_vm* vm) {
 
                 #if WAVE_VM_SAFE_MODE == 0
                 #define CONVERT(from_type, from_name, to_type, to_name)                                     \
-                    case CONCAT(WAVE_TYPE_, to_name): {                                                      \
+                    case CONCAT(WAVE_TYPE_, to_name): {                                                     \
                         STACK_ACCESS_TYPE(from_type, to_type, 0) = (to_type) STACK_ACCESS(from_type, 0);    \
-                        stack += sizeof(to_type) - sizeof(from_type);                                       \
+                        stack += sizeof(to_type);                                                           \
+                        stack -= sizeof(from_type);                                                         \
                         break;                                                                              \
                     }
                 #else
                 #define CONVERT(from_type, from_name, to_type, to_name)                                                             \
-                    case CONCAT(WAVE_TYPE_, to_name): {                                                                              \
+                    case CONCAT(WAVE_TYPE_, to_name): {                                                                             \
                         if (STACK_GET_TOP() >= sizeof(from_type) && (stack_end - stack) >= (sizeof(from_type) + sizeof(to_type))) { \
                             STACK_ACCESS_TYPE(from_type, to_type, 0) = (to_type) STACK_ACCESS(from_type, 0);                        \
-                            stack += sizeof(to_type) - sizeof(from_type);                                                           \
+                            stack += sizeof(to_type);                                                                               \
+                            stack -= sizeof(from_type);                                                                             \
                         } else {                                                                                                    \
                             THROW_ERROR(ERROR_CODE_LANGUAGE_RUNTIME_STACK_OVERFLOW);                                                \
                         }                                                                                                           \
@@ -2058,17 +2060,19 @@ error_code WAVE_VM_EXECUTE_FUNCTION_NAME(wave_vm* vm) {
 
                 #if WAVE_VM_SAFE_MODE == 0
                 #define CONVERT(from_type, from_name, to_type, to_name)                                         \
-                    case CONCAT(WAVE_TYPE_, to_name): {                                                          \
+                    case CONCAT(WAVE_TYPE_, to_name): {                                                         \
                         STACK_ACCESS_TYPE(from_type, to_type, 0) = *((to_type*) &STACK_ACCESS(from_type, 0));   \
-                        stack += sizeof(to_type) - sizeof(from_type);                                           \
+                        stack += sizeof(to_type);                                                               \
+                        stack -= sizeof(from_type);                                                             \
                         break;                                                                                  \
                     }
                 #else
                 #define CONVERT(from_type, from_name, to_type, to_name)                                                             \
-                    case CONCAT(WAVE_TYPE_, to_name): {                                                                              \
+                    case CONCAT(WAVE_TYPE_, to_name): {                                                                             \
                         if (STACK_GET_TOP() >= sizeof(from_type) && (stack_end - stack) >= (sizeof(from_type) + sizeof(to_type))) { \
                             STACK_ACCESS_TYPE(from_type, to_type, 0) = *((to_type*) &STACK_ACCESS(from_type, 0));                   \
-                            stack += sizeof(to_type) - sizeof(from_type);                                                           \
+                            stack += sizeof(to_type);                                                                               \
+                            stack -= sizeof(from_type);                                                                             \
                         } else {                                                                                                    \
                             THROW_ERROR(ERROR_CODE_LANGUAGE_RUNTIME_STACK_OVERFLOW);                                                \
                         }                                                                                                           \

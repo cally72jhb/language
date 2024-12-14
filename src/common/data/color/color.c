@@ -3,7 +3,6 @@
 #include "common/constants.h"
 
 #include "common/math/primitives/f32_math.h"
-#include "common/math/primitives/f64_math.h"
 
 // Color Functions
 

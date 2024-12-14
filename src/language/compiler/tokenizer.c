@@ -1,4 +1,4 @@
-#include "wave_tokenizer.h"
+#include "tokenizer.h"
 
 #include "common/constants.h"
 #include "common/error_codes.h"
@@ -6,8 +6,8 @@
 #include "common/data/string/hash.h"
 #include "common/data/string/string.h"
 
-#include "language/compiler/wave_compiler.h"
-#include "language/compiler/wave_compiler_common.h"
+#include "language/compiler/compiler.h"
+#include "language/compiler/data/wave_compiler_common.h"
 
 #include "language/runtime/wave_vm.h"
 
@@ -18,13 +18,13 @@ typedef struct { wave_token token; cstr string; } token_table_entry;
 static token_table_entry keyword_tokens[] = {
     #define KEYWORD_TOKENS (1)
     #define TOKEN_ENTRY(token_name, string_data, ...) (token_table_entry) { .token = CONCAT(WAVE_TOKEN_, token_name), .string = string_data },
-    #include "wave_token_list_inline.h"
+    #include "language/compiler/data/wave_token_list_inline.h"
 };
 
 static token_table_entry operator_tokens[] = {
     #define OPERATOR_TOKENS (1)
     #define TOKEN_ENTRY(token_name, string_data, ...) (token_table_entry) { .token = CONCAT(WAVE_TOKEN_, token_name), .string = string_data },
-    #include "wave_token_list_inline.h"
+    #include "language/compiler/data/wave_token_list_inline.h"
 };
 
 // error handling
@@ -235,10 +235,10 @@ static void tokenize_number(str source, str* out_source) {
         f32_representation += (f32) integer_result;
         f64_representation += (f64) integer_result;
 
-        DATA_STACK_FITS_SIZE(sizeof(wave_float_storage));
-        wave_float_storage value = (wave_float_storage) { .f32 = f32_representation, .f64 = f64_representation };
+        DATA_STACK_FITS_SIZE(sizeof(wave_float));
+        wave_float value = (wave_float) { .f32 = f32_representation, .f64 = f64_representation };
         push_token(WAVE_TOKEN_VALUE_FLOAT, true);
-        TOKENIZER_PUSH_DATA_UNSAFE(wave_float_storage, value);
+        TOKENIZER_PUSH_DATA_UNSAFE(wave_float, value);
     } else {
         DATA_STACK_FITS_SIZE(sizeof(u64));
         push_token(WAVE_TOKEN_VALUE_INTEGER, true);
@@ -386,7 +386,7 @@ static void tokenize_character(str source, str* out_source) {
 }
 
 static void tokenize_identifier(str source, str* out_source) {
-    DATA_STACK_FITS_SIZE(sizeof(wave_identifier_storage));
+    DATA_STACK_FITS_SIZE(sizeof(wave_identifier));
 
     u32 length = 0;
     str temp = source;
@@ -397,8 +397,8 @@ static void tokenize_identifier(str source, str* out_source) {
     } while (wave_compiler_builtin_char_is_namespace(GET_CHAR()));
 
     push_token(WAVE_TOKEN_IDENTIFIER, true);
-    wave_identifier_storage identifier = (wave_identifier_storage) { .hash = hash_bytes((byte*) temp, length), .source_pointer = temp };
-    TOKENIZER_PUSH_DATA_UNSAFE(wave_identifier_storage, identifier);
+    wave_identifier identifier = (wave_identifier) { .hash = hash_bytes((byte*) temp, length), .source_pointer = temp };
+    TOKENIZER_PUSH_DATA_UNSAFE(wave_identifier, identifier);
 
     *out_source = source;
 }
@@ -616,16 +616,10 @@ error_code wave_compiler_tokenize(wave_vm* vm, str source, parse_token** out_tok
 error_code wave_compiler_tokenizer_destroy(void) {
     const wave_memory_deallocation_function deallocate_memory = tokenizer.vm->deallocate_memory;
 
-    // macros
-
     #define TOKENIZER_DEALLOCATE(pointer) do { if (pointer != NULL) { RUN_ERROR_CODE_FUNCTION(deallocate_memory, (void*) pointer); pointer = NULL; } } while (0)
-
-    // deallocate temporary memory
 
     TOKENIZER_DEALLOCATE(tokenizer.token_stack_start);
     TOKENIZER_DEALLOCATE(tokenizer.data_stack_start);
-
-    // return
 
     #undef TOKENIZER_DEALLOCATE
 

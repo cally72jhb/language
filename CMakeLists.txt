@@ -41,80 +41,86 @@ file(
 
     # headers (for ide clarity)
 
-    ${PROJECT_SOURCE_DIR}/src/*.h
+    src/*.h
 
     # src
 
-        ${PROJECT_SOURCE_DIR}/src/main.c
+        src/main.c
 
         # src/common
 
-        ${PROJECT_SOURCE_DIR}/src/common/debug.c
-        ${PROJECT_SOURCE_DIR}/src/common/error_codes.c
+        src/common/debug.c
+        src/common/error_codes.c
 
             # common/data/color
 
-            ${PROJECT_SOURCE_DIR}/src/common/data/color/color.c
-            ${PROJECT_SOURCE_DIR}/src/common/data/color/color_registry.c
+            src/common/data/color/color.c
+            src/common/data/color/color_registry.c
 
             # common/data/string
 
-            ${PROJECT_SOURCE_DIR}/src/common/data/string/hash.c
-            ${PROJECT_SOURCE_DIR}/src/common/data/string/string.c
+            src/common/data/string/hash.c
+            src/common/data/string/string.c
 
             # src/common/math
 
-            ${PROJECT_SOURCE_DIR}/src/common/bit_utils.c
+            src/common/bit_utils.c
 
                 # common/math/mat
 
-                ${PROJECT_SOURCE_DIR}/src/common/math/mat/mat4.c
+                src/common/math/mat/mat4.c
 
                 # common/math/primitives
 
-                ${PROJECT_SOURCE_DIR}/src/common/math/primitives/f32_math.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/primitives/f64_math.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/primitives/iint_math.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/primitives/uint_math.c
+                src/common/math/primitives/f32_math.c
+                src/common/math/primitives/f64_math.c
+                src/common/math/primitives/iint_math.c
+                src/common/math/primitives/uint_math.c
 
                 # common/math/vec
 
-                ${PROJECT_SOURCE_DIR}/src/common/math/vec/vec2d.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/vec/vec2f.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/vec/vec2i.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/vec/vec3d.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/vec/vec3f.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/vec/vec3i.c
-                ${PROJECT_SOURCE_DIR}/src/common/math/vec/vec4f.c
+                src/common/math/vec/vec2d.c
+                src/common/math/vec/vec2f.c
+                src/common/math/vec/vec2i.c
+                src/common/math/vec/vec3d.c
+                src/common/math/vec/vec3f.c
+                src/common/math/vec/vec3i.c
+                src/common/math/vec/vec4f.c
 
             #src/common/memory
 
-            ${PROJECT_SOURCE_DIR}/src/common/memory/heap_manager.c
-            ${PROJECT_SOURCE_DIR}/src/common/memory/memory.c
+            src/common/memory/heap_manager.c
+            src/common/memory/memory.c
 
         #src/language
 
-        ${PROJECT_SOURCE_DIR}/src/language/wave_common.c
-        ${PROJECT_SOURCE_DIR}/src/language/wave_opcodes.c
+        src/language/wave_common.c
+        src/language/wave_opcodes.c
 
             #src/language/compiler
 
-            ${PROJECT_SOURCE_DIR}/src/language/compiler/wave_compiler.c
-            ${PROJECT_SOURCE_DIR}/src/language/compiler/wave_disassembler.c
-            ${PROJECT_SOURCE_DIR}/src/language/compiler/wave_parser.c
-            ${PROJECT_SOURCE_DIR}/src/language/compiler/wave_precedence.c
-            ${PROJECT_SOURCE_DIR}/src/language/compiler/wave_tokenizer.c
-            ${PROJECT_SOURCE_DIR}/src/language/compiler/wave_type.c
+            src/language/compiler/compiler.c
+            src/language/compiler/disassembler.c
+            src/language/compiler/optimizer.c
+            src/language/compiler/parser.c
+            src/language/compiler/tokenizer.c
+            src/language/compiler/type_resolver.c
+
+                #src/language/compiler/data
+
+                src/language/compiler/data/wave_ast.c
+                src/language/compiler/data/wave_precedence.c
+                src/language/compiler/data/wave_type.c
 
             #src/language/func
 
-            ${PROJECT_SOURCE_DIR}/src/language/func/wave_debug.c
-            ${PROJECT_SOURCE_DIR}/src/language/func/wave_math.c
+            src/language/func/wave_debug.c
+            src/language/func/wave_math.c
 
             #src/language/runtime
 
-            ${PROJECT_SOURCE_DIR}/src/language/runtime/wave_vm.c
-            ${PROJECT_SOURCE_DIR}/src/language/runtime/wave_vm_container.c
+            src/language/runtime/wave_vm.c
+            src/language/runtime/wave_vm_container.c
 )
 
 ################

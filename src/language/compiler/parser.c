@@ -1,4 +1,4 @@
-#include "wave_parser.h"
+#include "parser.h"
 
 #include "common/debug.h"
 
@@ -9,10 +9,10 @@
 #include "language/wave_limits.h"
 #include "language/wave_opcodes.h"
 
-#include "language/compiler/wave_compiler.h"
-#include "language/compiler/wave_compiler_common.h"
-#include "language/compiler/wave_precedence.h"
-#include "language/compiler/wave_type.h"
+#include "language/compiler/compiler.h"
+#include "language/compiler/data/wave_compiler_common.h"
+#include "language/compiler/data/wave_precedence.h"
+#include "language/compiler/data/wave_type.h"
 
 // Parser Functions
 
@@ -80,9 +80,9 @@ typedef struct {
 } parse_function; // extends @wave_function
 #define PARSE_FUNCTION_NULL                 \
     (parse_function) {                      \
-        .function_data = (wave_function) {   \
+        .function_data = (wave_function) {  \
             .name = 0,                      \
-            .return_type = WAVE_TYPE_NONE,   \
+            .return_type = WAVE_TYPE_NONE,  \
             .parameters = NULL,             \
             .parameter_count = 0,           \
             .error_function = false         \
@@ -224,9 +224,14 @@ struct {
     parse_label* labels;
     u32 label_capacity;
     u32 label_count;
-} function_parser; // TODO: merge with parser
+} function_parser; // TODO: merge with @parser
 
 // Defines
+
+#define PARSER_GET_DATA(type, offset) (*((type*) (parser.data_stack_start + (offset))))
+
+#define PARSER_EXPECT_RETURN(return_expression, token, parse_function, message_format, ...) do { if (!parser_consume(token)) { PARSER_RAISE_ERROR(parse_function, message_format, __VA_ARGS__); return return_expression; } } while (0)
+#define PARSER_EXPECT(token, parse_function, message_format, ...) PARSER_EXPECT_RETURN(, token, parse_function, message_format, __VA_ARGS__)
 
 // error handling
 
@@ -259,13 +264,13 @@ typedef struct { wave_token token; cstr string; } token_table_entry;
 static token_table_entry keyword_tokens[] = {
     #define KEYWORD_TOKENS (1)
     #define TOKEN_ENTRY(token_name, string_data, ...) (token_table_entry) { .token = CONCAT(WAVE_TOKEN_, token_name), .string = string_data },
-    #include "wave_token_list_inline.h"
+    #include "language/compiler/data/wave_token_list_inline.h"
 };
 
 static token_table_entry operator_tokens[] = {
     #define OPERATOR_TOKENS (1)
     #define TOKEN_ENTRY(token_name, string_data, ...) (token_table_entry) { .token = CONCAT(WAVE_TOKEN_, token_name), .string = string_data },
-    #include "wave_token_list_inline.h"
+    #include "language/compiler/data/wave_token_list_inline.h"
 };
 
 // Parser Functions
@@ -327,7 +332,7 @@ static void parse_label_statement(void);
 // parse declaration
 
 static void parse_function_parameters(parse_parameter** out_parameters, bool* out_function_forward_declared);
-static void parse_function_body(str function_name_source_pointer, u32 function_start_line, u32 function_start_row, parse_parameter* parameters);
+static void parse_function_body(str function_name_source_pointer, u32 function_start_line, u32 function_start_row, const parse_parameter* parameters);
 
 static void parse_function_declaration(void);
 static void parse_entrypoint_declaration(void);
@@ -360,13 +365,6 @@ static bool resolve_function(string_hash name, parse_function* out_function);
 // other
 
 static bool is_function_modifier(wave_token token);
-
-// Defines
-
-#define PARSER_GET_DATA(type, offset) (*((type*) (parser.data_stack_start + (offset))))
-
-#define PARSER_EXPECT_RETURN(return_expression, token, parse_function, message_format, ...) do { if (!parser_consume(token)) { PARSER_RAISE_ERROR(parse_function, message_format, __VA_ARGS__); return return_expression; } } while (0)
-#define PARSER_EXPECT(token, parse_function, message_format, ...) PARSER_EXPECT_RETURN(, token, parse_function, message_format, __VA_ARGS__)
 
 // Parser Functions
 
@@ -682,7 +680,7 @@ static void parse_variable_initializer_statement(void) {
     parser_advance();
 
     PARSER_EXPECT(WAVE_TOKEN_IDENTIFIER, "parse_variable_initializer_statement", "variable name expected");
-    string_hash identifier = PARSER_GET_DATA(wave_identifier_storage, parser.previous.data_index).hash;
+    string_hash identifier = PARSER_GET_DATA(wave_identifier, parser.previous.data_index).hash;
 
     wave_local* local_variable = add_local(variable_type, identifier, false);
 
@@ -725,7 +723,7 @@ static void parse_variable_string_initializer_statement(void) {
     PARSER_EXPECT(WAVE_TOKEN_KEYWORD_STR, "parse_variable_string_initializer_statement", "expected string type variable (\"%s\" keyword)", (str_format_data) keyword_tokens[WAVE_TOKEN_KEYWORD_STR].string);
 
     PARSER_EXPECT(WAVE_TOKEN_IDENTIFIER, "parse_variable_initializer_statement", "variable name expected");
-    string_hash identifier = PARSER_GET_DATA(wave_identifier_storage, parser.previous.data_index).hash;
+    string_hash identifier = PARSER_GET_DATA(wave_identifier, parser.previous.data_index).hash;
 
     wave_local* local_variable = add_local(WAVE_TYPE_STR, identifier, false);
 
@@ -740,7 +738,7 @@ static void parse_variable_string_initializer_statement(void) {
 
 static void parse_function_call_statement(bool reference_function_call, wave_type* out_return_type) {
     PARSER_EXPECT(WAVE_TOKEN_IDENTIFIER, "parse_function_call_statement", "expected function name");
-    string_hash identifier_name = PARSER_GET_DATA(wave_identifier_storage, parser.previous.data_index).hash;
+    string_hash identifier_name = PARSER_GET_DATA(wave_identifier, parser.previous.data_index).hash;
 
     DEBUG_INFO("parse_function_call_statement: identifier_name = %x64", identifier_name);
 
@@ -948,7 +946,7 @@ static void parse_exit_statement(void) {
 
 static void parse_label_statement(void) {
     PARSER_EXPECT(WAVE_TOKEN_IDENTIFIER, "parse_label_statement", "missing label name, expected identifier token");
-    wave_identifier_storage identifier = PARSER_GET_DATA(wave_identifier_storage, parser.current.data_index);
+    wave_identifier identifier = PARSER_GET_DATA(wave_identifier, parser.current.data_index);
     parse_label label = (parse_label) {
         .name = identifier.hash,
         .branch_offset = parser.bytecode_current - parser.bytecode_start
@@ -1014,7 +1012,7 @@ static void parse_function_parameters(parse_parameter** out_parameters, bool* ou
         // parse name
 
         if (parser_match(WAVE_TOKEN_IDENTIFIER)) {
-            parameter_name = PARSER_GET_DATA(wave_identifier_storage, parser.previous.data_index).hash;
+            parameter_name = PARSER_GET_DATA(wave_identifier, parser.previous.data_index).hash;
 
             if (parser_match(WAVE_TOKEN_OP_ASSIGN)) {
                 if (function_forward_declared) {
@@ -1105,7 +1103,7 @@ static void parse_function_parameters(parse_parameter** out_parameters, bool* ou
     *out_function_forward_declared = false;
 }
 
-static void parse_function_body(str function_name_source_pointer, u32 function_start_line, u32 function_start_row, parse_parameter* parameters) {
+static void parse_function_body(str function_name_source_pointer, u32 function_start_line, u32 function_start_row, const parse_parameter* parameters) {
     function_parser.locals_offset = 0;
 
     parse_function* function = parser.current_function;
@@ -1236,7 +1234,7 @@ static void parse_function_declaration(void) {
     // parse function name
 
     PARSER_EXPECT(WAVE_TOKEN_IDENTIFIER, "parse_function_declaration", "missing function name, expected identifier token");
-    wave_identifier_storage identifier = PARSER_GET_DATA(wave_identifier_storage, parser.previous.data_index);
+    wave_identifier identifier = PARSER_GET_DATA(wave_identifier, parser.previous.data_index);
     function.function_data.name = identifier.hash;
 
     u32 function_start_line = parser.previous_line;
@@ -1428,7 +1426,7 @@ static void parse_local_variable_declaration(void) {
 
     parser_advance();
 
-    string_hash variable_name = PARSER_GET_DATA(wave_identifier_storage, parser.current.data_index).hash;
+    string_hash variable_name = PARSER_GET_DATA(wave_identifier, parser.current.data_index).hash;
     for (i32 i = ((i32) function_parser.locals_count) - 1; i >= 0; i--) {
         wave_local* local = &function_parser.locals[i];
         if (local->depth != -1 && local->depth < function_parser.scope_depth) {
@@ -1822,7 +1820,7 @@ static void parse_number(wave_type expression_type, bool can_assign) {
         }
 
         case WAVE_TOKEN_VALUE_FLOAT: {
-            wave_float_storage float_value = PARSER_GET_DATA(wave_float_storage, number.data_index);
+            wave_float float_value = PARSER_GET_DATA(wave_float, number.data_index);
 
             f32 f32_value = float_value.f32;
             f64 f64_value = float_value.f64;
@@ -1882,7 +1880,7 @@ static void parse_string(wave_type expression_type, bool can_assign) {
 }
 
 static void parse_identifier(wave_type expression_type, bool can_assign) {
-    string_hash name = PARSER_GET_DATA(wave_identifier_storage, parser.previous.data_index).hash;
+    string_hash name = PARSER_GET_DATA(wave_identifier, parser.previous.data_index).hash;
 
     // resolve the variable (local or global)
 
@@ -2337,8 +2335,6 @@ error_code wave_compiler_parser_destroy(void) {
     const wave_memory_allocation_function allocate_memory = parser.vm->allocate_memory;
     const wave_memory_deallocation_function deallocate_memory = parser.vm->deallocate_memory;
 
-    // macros
-
     #define PARSER_DEALLOCATE(pointer) do { if (pointer != NULL) { RUN_ERROR_CODE_FUNCTION(deallocate_memory, (void*) pointer); pointer = NULL; } } while (0)
 
     // deallocate temporary memory
@@ -2362,8 +2358,6 @@ error_code wave_compiler_parser_destroy(void) {
     PARSER_DEALLOCATE(function_parser.accessed_globals);
     PARSER_DEALLOCATE(function_parser.locals);
     PARSER_DEALLOCATE(function_parser.labels);
-
-    // return
 
     #undef PARSER_DEALLOCATE
 

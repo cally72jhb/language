@@ -7,7 +7,7 @@
 
 // Typedefs
 
-typedef struct vec3d {
+typedef struct {
     union {
         struct {
             f64 x;

@@ -19,6 +19,14 @@ entrypoint(uint argument_count, str[] arguments) {
 ```
 (this example does not work for now)
 
+## Features
+
+- multi-pass compiler
+- optimizing compiler _(soon)_
+- embedding api
+- exception handling
+- portable (small vm)
+
 ## Current State
 
 Working examples can be found in the ``resources/scripts/`` folder.

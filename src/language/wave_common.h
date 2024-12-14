@@ -47,7 +47,7 @@ typedef enum {
 
     WAVE_TYPE_NONE
 } WAVE_TYPES;
-typedef byte wave_type; // similar to @number_type
+typedef byte wave_type; // @WAVE_TYPES; similar to @number_type
 
 umax wave_type_get_size(wave_type type);
 cstr wave_type_get_string(wave_type type);

@@ -45,22 +45,22 @@ COMPILE_ASSERT(WAVE_TOKEN_MAX <= 256, too_many_tokens_defined);
 typedef byte wave_token; // WAVE_TOKENS
 
 typedef struct {
-    wave_token token;
-    u32 data_index;
+    wave_token token; // the token
+    u32 data_index; // the tokens index to the data stack // TODO: add binary tree or tree-like structure for storing identifiers
 
-    u32 line;
-    u32 row;
+    u32 line; // the line in which the token has started
+    u32 row; // the row in @line that points to the first character of the token
 } parse_token;
 
 typedef struct {
-    f32 f32;
-    f64 f64;
-} wave_float_storage; // stores both float precisions for the parser to decide which to use
+    f32 f32; // 32bit precision
+    f64 f64; // 64bit precision
+} wave_float; // for quick access and errors when type converting from one to the other
 
 typedef struct {
-    string_hash hash;
-    str source_pointer;
-} wave_identifier_storage; // stores the identifier name hash (for identifying) and its pointer to the source code for debug information
+    string_hash hash; // identifier string hash
+    str source_pointer; // pointer to the source code
+} wave_identifier;
 
 // Defines
 

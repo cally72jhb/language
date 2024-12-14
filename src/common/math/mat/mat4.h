@@ -10,7 +10,7 @@
 
 // Typedefs
 
-typedef struct mat4 {
+typedef struct {
     union {
         struct {
             f32 m00; f32 m01; f32 m02; f32 m03;

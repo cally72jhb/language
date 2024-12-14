@@ -8,7 +8,7 @@
 
 #include "language/runtime/wave_vm.h"
 
-#include "language/compiler/wave_compiler.h"
+#include "language/compiler/compiler.h"
 
 // Typedefs
 
@@ -16,6 +16,6 @@ typedef error_code (*wave_disassembler_print_function)(str string, u32 length);
 
 // Functions
 
-error_code wave_disassemble(wave_vm* vm, wave_disassembler_print_function print_function);
+error_code wave_disassemble(const wave_vm* vm, wave_disassembler_print_function print_function);
 
 #endif

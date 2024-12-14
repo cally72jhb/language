@@ -9,7 +9,7 @@
 
 // Typedefs
 
-typedef struct vec3i {
+typedef struct {
     union {
         struct {
             i32 x;

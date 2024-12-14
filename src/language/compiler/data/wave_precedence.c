@@ -1,6 +1,6 @@
 #include "wave_precedence.h"
 
-#include "language/compiler/wave_compiler_common.h"
+#include "wave_compiler_common.h"
 
 // Precedence Functions
 

@@ -256,9 +256,9 @@ error_code wave_vm_begin_function_execution(wave_vm* vm, string_hash function_na
 }
 
 error_code wave_vm_destroy(wave_vm* vm) {
-    wave_memory_deallocation_function deallocate_memory = vm->deallocate_memory;
+    const wave_memory_deallocation_function deallocate_memory = vm->deallocate_memory;
 
-    #define DEALLOCATE_SAFE(pointer) do { if (pointer != NULL) { RUN_ERROR_CODE_FUNCTION(deallocate_memory, (void*) pointer); } } while (0)
+    #define DEALLOCATE_SAFE(pointer) do { if (pointer != NULL) { RUN_ERROR_CODE_FUNCTION(deallocate_memory, (void*) pointer); pointer = NULL; } } while (0)
 
     DEALLOCATE_SAFE(vm->native_functions);
 

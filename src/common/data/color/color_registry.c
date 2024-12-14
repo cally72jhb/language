@@ -21,7 +21,22 @@ enum {
 
 typedef struct {
     cstr name;
-    struct { u8 red; u8 green; u8 blue; } color;
+
+    union {
+        struct {
+            u8 red;
+            u8 green;
+            u8 blue;
+        };
+
+        struct {
+            u8 red;
+            u8 green;
+            u8 blue;
+        } color;
+
+        u8 colors[3];
+    };
 } color_registry_entry;
 
 #undef COLOR_REGISTRY_ENTRY

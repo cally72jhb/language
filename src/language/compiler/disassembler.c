@@ -1,4 +1,4 @@
-#include "wave_disassembler.h"
+#include "disassembler.h"
 
 #include "common/constants.h"
 #include "common/error_codes.h"
@@ -10,11 +10,11 @@
 #include "language/wave_limits.h"
 #include "language/wave_opcodes.h"
 
-#include "language/compiler/wave_compiler.h"
+#include "language/compiler/compiler.h"
 
 // Functions
 
-error_code wave_disassemble(wave_vm* vm, wave_disassembler_print_function print_function) {
+error_code wave_disassemble(const wave_vm* vm, wave_disassembler_print_function print_function) {
     const wave_memory_allocation_function allocate_memory = vm->allocate_memory;
     const wave_memory_reallocation_function reallocate_memory = vm->reallocate_memory;
     const wave_memory_deallocation_function deallocate_memory = vm->deallocate_memory;

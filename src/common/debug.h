@@ -175,17 +175,17 @@ error_code debug_builtin_get_buffer(byte** out_buffer, umax size);
     // Debugging
 
     #if PROGRAM_FEATURE_DEBUG_STACK_TRACE != 0
-        #define DEBUG_TYPE(type, format, ...) DEBUG_FORMAT(type DEBUG_FILE_FORMAT_PREFIX format DEBUG_SUFFIX "\n", (str_format_data) CURRENT_FILE_PATH, (str_format_data) CURRENT_FILE_LINE, __VA_ARGS__)
+        #define DEBUG_PREFIX(type, format, ...) DEBUG_FORMAT(type DEBUG_FILE_FORMAT_PREFIX format DEBUG_SUFFIX "\n", (str_format_data) CURRENT_FILE_PATH, (str_format_data) CURRENT_FILE_LINE, __VA_ARGS__)
     #else
-        #define DEBUG_TYPE(type, format, ...) DEBUG_FORMAT(type " " format DEBUG_SUFFIX "\n", __VA_ARGS__)
+        #define DEBUG_PREFIX(type, format, ...) DEBUG_FORMAT(type " " format DEBUG_SUFFIX "\n", __VA_ARGS__)
     #endif
 
     // Different Debugging Types
 
-    #define DEBUG_INFO(format, ...)    DEBUG_TYPE(DEBUG_INFO_PREFIX,      format, __VA_ARGS__)
-    #define DEBUG_WARNING(format, ...) DEBUG_TYPE(DEBUG_WARNING_PREFIX,   format, __VA_ARGS__)
-    #define DEBUG_ERROR(format, ...)   DEBUG_TYPE(DEBUG_ERROR_PREFIX,     format, __VA_ARGS__)
-    #define DEBUG_FATAL(format, ...)   DEBUG_TYPE(DEBUG_FATAL_PREFIX,     format, __VA_ARGS__)
+    #define DEBUG_INFO(format, ...)    DEBUG_PREFIX(DEBUG_INFO_PREFIX,      format, __VA_ARGS__)
+    #define DEBUG_WARNING(format, ...) DEBUG_PREFIX(DEBUG_WARNING_PREFIX,   format, __VA_ARGS__)
+    #define DEBUG_ERROR(format, ...)   DEBUG_PREFIX(DEBUG_ERROR_PREFIX,     format, __VA_ARGS__)
+    #define DEBUG_FATAL(format, ...)   DEBUG_PREFIX(DEBUG_FATAL_PREFIX,     format, __VA_ARGS__)
 
     #define DEBUG_NEW_LINE() DEBUG_FORMAT("\n")
 
@@ -208,7 +208,7 @@ error_code debug_builtin_get_buffer(byte** out_buffer, umax size);
     #define DEBUG_RAW(...) EMPTY_CODE_BLOCK()
     #define DEBUG_RAW_TRACELESS(...) EMPTY_CODE_BLOCK()
 
-    #define DEBUG_TYPE(...) EMPTY_CODE_BLOCK()
+    #define DEBUG_PREFIX(...) EMPTY_CODE_BLOCK()
 
     #define DEBUG_INFO(...)    EMPTY_CODE_BLOCK()
     #define DEBUG_WARNING(...) EMPTY_CODE_BLOCK()

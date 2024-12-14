@@ -1,4 +1,4 @@
-#include "wave_compiler.h"
+#include "compiler.h"
 
 #include "common/constants.h"
 #include "common/error_codes.h"
@@ -6,9 +6,9 @@
 
 #include "common/data/string/string.h"
 
-#include "language/compiler/wave_compiler_common.h"
-#include "language/compiler/wave_parser.h"
-#include "language/compiler/wave_tokenizer.h"
+#include "language/compiler/data/wave_compiler_common.h"
+#include "language/compiler/parser.h"
+#include "language/compiler/tokenizer.h"
 
 #include "language/runtime/wave_vm.h"
 
